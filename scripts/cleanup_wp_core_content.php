@@ -8,10 +8,11 @@
 
 declare( strict_types=1 );
 
-$project_root = dirname( __DIR__ );
-$core_content = $project_root . '/public/wp/wp-content';
-$plugins_dir  = $core_content . '/plugins';
-$themes_dir   = $core_content . '/themes';
+$project_root      = dirname( __DIR__ );
+$core_content      = $project_root . '/public/wp/wp-content';
+$plugins_dir       = $core_content . '/plugins';
+$themes_dir        = $core_content . '/themes';
+$active_themes_dir = $project_root . '/public/content/themes';
 
 function bp_cleanup_log( string $message ): void {
 
@@ -45,6 +46,50 @@ function bp_remove_path( string $path ): void {
     }
 
     @rmdir( $path );
+}
+
+function bp_copy_path( string $source, string $destination ): void {
+
+    if( is_link( $source ) ) {
+        symlink( readlink( $source ), $destination );
+        return;
+    }
+
+    if( is_file( $source ) ) {
+        copy( $source, $destination );
+        return;
+    }
+
+    if( ! is_dir( $destination ) ) {
+        mkdir( $destination, 0755, true );
+    }
+
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator( $source, FilesystemIterator::SKIP_DOTS ),
+        RecursiveIteratorIterator::SELF_FIRST
+    );
+
+    foreach( $iterator as $item ) {
+        $source_path      = $item->getPathname();
+        $relative_path    = substr( $source_path, strlen( $source ) + 1 );
+        $destination_path = $destination . '/' . $relative_path;
+
+        if( $item->isDir() && ! $item->isLink() ) {
+
+            if( ! is_dir( $destination_path ) ) {
+                mkdir( $destination_path, 0755, true );
+            }
+
+            continue;
+        }
+
+        if( $item->isLink() ) {
+            symlink( readlink( $source_path ), $destination_path );
+            continue;
+        }
+
+        copy( $source_path, $destination_path );
+    }
 }
 
 function bp_detect_latest_default_theme( string $themes_dir ): ?string {
@@ -139,6 +184,32 @@ if( is_dir( $themes_dir ) ) {
 
         bp_cleanup_log( 'Removing older bundled core theme: ' . str_replace( $project_root . '/', '', $theme_path ) );
         bp_remove_path( $theme_path );
+    }
+
+    if( $keep_theme ) {
+
+        $source_theme = $themes_dir . '/' . $keep_theme;
+        $active_theme = $active_themes_dir . '/' . $keep_theme;
+
+        if( is_dir( $active_theme ) ) {
+
+            bp_cleanup_log( 'Active default theme already exists; leaving untouched: ' . str_replace( $project_root . '/', '', $active_theme ) );
+
+        } elseif( is_dir( $source_theme ) ) {
+
+            if( ! is_dir( $active_themes_dir ) ) {
+                mkdir( $active_themes_dir, 0755, true );
+            }
+
+            bp_cleanup_log(
+                'Copying bundled core theme into active content themes: ' .
+                str_replace( $project_root . '/', '', $source_theme ) .
+                ' -> ' .
+                str_replace( $project_root . '/', '', $active_theme )
+            );
+
+            bp_copy_path( $source_theme, $active_theme );
+        }
     }
 }
 
