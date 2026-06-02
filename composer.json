@@ -1,0 +1,87 @@
+{
+  "name": "folkhack/boilerplate-seat",
+  "type": "project",
+  "description": "A Composer-managed WordPress seat for the folkhack Boilerplate parent and child themes.",
+  "license": "MIT",
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://wpackagist.org"
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "folkhack/boilerplate",
+        "type": "wordpress-theme",
+        "version": "1.0.0",
+        "source": {
+          "type": "git",
+          "url": "https://github.com/folkhack/boilerplate.git",
+          "reference": "1.0.0"
+        },
+        "require": {
+          "composer/installers": "^2.3"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "folkhack/boilerplate-child",
+        "type": "wordpress-theme",
+        "version": "1.0.0",
+        "source": {
+          "type": "git",
+          "url": "https://github.com/folkhack/boilerplate-child.git",
+          "reference": "1.0.0"
+        },
+        "require": {
+          "composer/installers": "^2.3"
+        }
+      }
+    }
+  ],
+  "require": {
+    "php": "^8.3",
+    "composer/installers": "^2.3",
+    "roots/wordpress-core-installer": "^4.0",
+    "roots/wordpress-full": "^7.0",
+    "folkhack/boilerplate": "1.0.0",
+    "folkhack/boilerplate-child": "1.0.0"
+  },
+  "config": {
+    "allow-plugins": {
+      "composer/installers": true,
+      "roots/wordpress-core-installer": true
+    },
+    "sort-packages": true
+  },
+  "extra": {
+    "wordpress-install-dir": "public/wp",
+    "installer-paths": {
+      "public/content/plugins/{$name}/": [
+        "type:wordpress-plugin"
+      ],
+      "public/content/mu-plugins/{$name}/": [
+        "type:wordpress-muplugin"
+      ],
+      "public/content/themes/{$name}/": [
+        "type:wordpress-theme"
+      ]
+    }
+  },
+  "scripts": {
+    "boilerplate:ensure-config": "@php -r \"is_file('wp_config.php') || copy('wp_config.sample.php', 'wp_config.php');\"",
+    "boilerplate:cleanup-core-content": "@php scripts/cleanup_wp_core_content.php",
+    "post-install-cmd": [
+      "@boilerplate:ensure-config",
+      "@boilerplate:cleanup-core-content"
+    ],
+    "post-update-cmd": [
+      "@boilerplate:ensure-config",
+      "@boilerplate:cleanup-core-content"
+    ]
+  }
+}

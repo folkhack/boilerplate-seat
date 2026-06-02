@@ -1,0 +1,38 @@
+# Don't check in lockfile by default
+composer.lock
+
+# Dependencies / generated vendor code
+/vendor/
+/public/wp/
+
+# Runtime / local configuration
+/.env
+/.env.*
+/wp_config.php
+/nginx.local.conf
+/nginx.prod.conf
+
+# WordPress runtime content
+/public/content/upgrade/*
+!/public/content/upgrade/.gitignore
+/public/content/cache/
+/public/content/uploads/*
+!/public/content/uploads/.gitignore
+
+# Composer-installed plugins and themes
+/public/content/plugins/*
+!/public/content/plugins/.gitignore
+/public/content/themes/*
+!/public/content/themes/.gitignore
+
+# MU plugins are explicitly owned by this scaffold
+/public/content/mu-plugins/*
+!/public/content/mu-plugins/.gitignore
+!/public/content/mu-plugins/loader.php
+
+# Logs / OS / editor noise
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
