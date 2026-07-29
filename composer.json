@@ -47,7 +47,7 @@
     "php": "^8.3",
     "composer/installers": "^2.3",
     "roots/wordpress-core-installer": "^4.0",
-    "roots/wordpress-full": "^7.0",
+    "roots/wordpress-full": "^7.0.2",
     "folkhack/boilerplate": "1.0.0",
     "folkhack/boilerplate-child": "1.0.0"
   },
